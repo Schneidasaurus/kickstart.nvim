@@ -164,6 +164,10 @@ vim.o.scrolloff = 10
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
+vim.o.tabstop = 4
+vim.o.shiftwidth = 4
+vim.o.expandtab = false
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -598,6 +602,7 @@ require('lazy').setup({
         ['html-lsp'] = {},
         ['htmx-lsp'] = {},
         ['terraform-ls'] = {},
+        ['templ'] = {},
         -- pyright = {},
         -- rust_analyzer = {},
         --
@@ -619,11 +624,18 @@ require('lazy').setup({
       vim.list_extend(ensure_installed, {
         'lua-language-server', -- Lua Language server
         'stylua', -- Used to format Lua code
+        'css-lsp',
+        'tailwindcss-language-server',
         -- You can add other tools here that you want Mason to install
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
+      -- some items installed above have different names in lspconfig - list them here so they git initialized
+      servers = vim.tbl_deep_extend('force', servers, {
+        ['cssls'] = {},
+        ['tailwindcss'] = {},
+      })
       for name, server in pairs(servers) do
         server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
         vim.lsp.config(name, server)
@@ -635,6 +647,7 @@ require('lazy').setup({
           tf = 'terraform',
           tofu = 'terraform',
           tfvars = 'terraform-vars',
+          templ = 'templ',
         },
       }
       vim.lsp.enable 'terraformls'
@@ -671,6 +684,12 @@ require('lazy').setup({
       })
       vim.lsp.enable 'terragrunt-ls'
 
+      --      vim.lsp.config('https://github.com/microsoft/vscode-css-languageserviceailwindcss-language-server', {
+      --        filetypes = { 'templ', 'html', 'css' },
+      --        cmd = { 'tailwindcss-language-server' },
+      --      })
+      --      vim.lsp.enable 'tailwindcss-language-server'
+
       -- Special Lua Config, as recommended by neovim help docs
       vim.lsp.config('lua_ls', {
         on_init = function(client)
@@ -698,6 +717,35 @@ require('lazy').setup({
       })
       vim.lsp.enable 'lua_ls'
     end,
+    --    opts = {
+    --      servers = {
+    --        tailwindcss = {
+    --          filetypes_exclude = { 'markdown' },
+    --          filteypes_include = {},
+    --          settings = {
+    --            tailwindCSS = {
+    --              includeLanguages = {
+    --                elixer = 'html-eex',
+    --                eelixer = 'html-eex',
+    --                heex = 'html-eex',
+    --                templ = 'templ',
+    --              },
+    --            },
+    --          },
+    --        },
+    --      },
+    --    },
+    --    setup = {
+    --      tailwindcss = function(_, opts)
+    --        opts.filetypes = opts.filetypes or {}
+    --
+    --        vim.list_extend(opts.filetypes, vim.lsp.config.tailwindcss.filetypes)
+    --
+    --        opts.filetypes = vim.tbl_filter(function(ft) return not vim.tbl_contains(opts.filetypes_exclude or {}, ft) end, opts.filetypes)
+    --
+    --        vim.list_extend(opts.filetypes, opts.filetypes_include or {})
+    --      end,
+    --    },
   },
 
   { -- Autoformat
@@ -954,5 +1002,10 @@ require('lazy').setup({
   },
 })
 
+require('nvim-treesitter').install { 'templ' }
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'templ',
+  callback = function() vim.treesitter.start() end,
+})
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
