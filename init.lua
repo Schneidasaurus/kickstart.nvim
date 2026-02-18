@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.o.relativenumber = true
+vim.o.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
@@ -594,7 +594,10 @@ require('lazy').setup({
       --  See `:help lsp-config` for information about keys and how to configure
       local servers = {
         -- clangd = {},
-        -- gopls = {},
+        gopls = {},
+        ['html-lsp'] = {},
+        ['htmx-lsp'] = {},
+        ['terraform-ls'] = {},
         -- pyright = {},
         -- rust_analyzer = {},
         --
@@ -614,7 +617,7 @@ require('lazy').setup({
       -- You can press `g?` for help in this menu.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'lua_ls', -- Lua Language server
+        'lua-language-server', -- Lua Language server
         'stylua', -- Used to format Lua code
         -- You can add other tools here that you want Mason to install
       })
@@ -626,6 +629,47 @@ require('lazy').setup({
         vim.lsp.config(name, server)
         vim.lsp.enable(name)
       end
+
+      vim.filetype.add {
+        extension = {
+          tf = 'terraform',
+          tofu = 'terraform',
+          tfvars = 'terraform-vars',
+        },
+      }
+      vim.lsp.enable 'terraformls'
+      --    vim.lsp.config('terraformls', {
+      --      on_init = function(client)
+      --        client.config.settings.terraform = vim.tbl_deep_extend('force', client.config.settings.terraform, {
+      --          experimentalFeatures = {
+      --            prefillRequiredFields = true,
+      --          },
+      --        })
+      --      end,
+      --    })
+      vim.api.nvim_create_autocmd({ 'BufWritePre' }, {
+        pattern = { '*.tf', '*.tfvars' },
+        callback = function() vim.lsp.buf.format() end,
+      })
+
+      vim.lsp.config('terragrunt-ls', {
+        cmd = { 'terragrunt-ls' },
+        filetypes = { 'hcl' },
+        ft = 'hcl',
+        config = function()
+          local terragrunt_ls = require 'terragrunt-ls'
+          terragrunt_ls.setup {
+            cmd_env = {},
+          }
+          if terragrunt_ls.client then
+            vim.api.nvim_create_autocmd('FileType', {
+              pattern = 'hcl',
+              callback = function() vim.lsp.buf_attach_client(0, terragrunt_ls.client) end,
+            })
+          end
+        end,
+      })
+      vim.lsp.enable 'terragrunt-ls'
 
       -- Special Lua Config, as recommended by neovim help docs
       vim.lsp.config('lua_ls', {
@@ -750,7 +794,8 @@ require('lazy').setup({
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
+        -- preset = 'default',
+        preset = 'super-tab',
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -852,7 +897,7 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     config = function()
-      local filetypes = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+      local filetypes = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'terraform', 'opentofu' }
       require('nvim-treesitter').install(filetypes)
       vim.api.nvim_create_autocmd('FileType', {
         pattern = filetypes,
