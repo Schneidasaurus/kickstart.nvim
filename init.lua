@@ -608,7 +608,7 @@ require('lazy').setup({
         -- clangd = {},
         gopls = {},
         ['html-lsp'] = {},
-        ['htmx-lsp'] = {},
+        -- ['htmx-lsp'] = {},
         ['terraform-ls'] = {},
         ['templ'] = {},
         -- pyright = {},
@@ -634,6 +634,7 @@ require('lazy').setup({
         'stylua', -- Used to format Lua code
         'css-lsp',
         'tailwindcss-language-server',
+        -- 'htmx-lsp',
         -- You can add other tools here that you want Mason to install
       })
 
@@ -643,6 +644,7 @@ require('lazy').setup({
       servers = vim.tbl_deep_extend('force', servers, {
         ['cssls'] = {},
         ['tailwindcss'] = {},
+        -- ['htmx'] = {},
       })
       for name, server in pairs(servers) do
         server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
