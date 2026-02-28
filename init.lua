@@ -901,6 +901,7 @@ require('lazy').setup({
     config = function()
       ---@diagnostic disable-next-line: missing-fields
       require('tokyonight').setup {
+        transparent = true,
         styles = {
           comments = { italic = false }, -- Disable italics in comments
         },
@@ -963,15 +964,15 @@ require('lazy').setup({
       })
     end,
   },
-  {
-    'rose-pine/neovim',
-    name = 'rose-pine',
-    opts = {
-      styles = {
-        transparency = true,
-      },
-    },
-  },
+  -- {
+  --   'rose-pine/neovim',
+  --   name = 'rose-pine',
+  --   opts = {
+  --     styles = {
+  --       transparency = true,
+  --     },
+  --   },
+  -- },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
@@ -1026,6 +1027,6 @@ vim.api.nvim_create_autocmd('FileType', {
   pattern = 'templ',
   callback = function() vim.treesitter.start() end,
 })
-vim.cmd 'colorscheme rose-pine'
+-- vim.cmd 'colorscheme rose-pine'
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
